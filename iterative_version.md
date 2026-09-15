@@ -114,6 +114,98 @@ pytest
 
 Define backend domain models for candidate evidence, pasted job descriptions, normalized requirements, and saved job decisions. Then add the first database migration and CRUD API shape around those models.
 
+## Milestone 1.1 - Domain Model and Persistence
+
+Added the first backend persistence slice for structured candidate profiles and manually pasted job descriptions.
+
+### Completed
+
+- Added Pydantic domain models for:
+  - Candidate profiles.
+  - Candidate evidence items.
+  - Manually pasted job descriptions.
+  - Normalized requirements placeholder structure.
+  - User job decision states.
+- Added SQLAlchemy database models for:
+  - `candidate_profiles`.
+  - `candidate_evidence`.
+  - `job_descriptions`.
+  - `job_decisions`.
+- Added SQLAlchemy session management and a FastAPI database dependency.
+- Added Alembic configuration and the first migration.
+- Added repository classes to keep persistence details out of API routes.
+- Added API endpoints for candidate profile persistence:
+  - `POST /candidate-profile`
+  - `GET /candidate-profile`
+  - `GET /candidate-profile/{profile_id}`
+- Added API endpoints for manual job-description persistence:
+  - `POST /jobs`
+  - `GET /jobs`
+  - `GET /jobs/{job_id}`
+- Added backend tests for profile creation/retrieval and job creation/listing/retrieval.
+- Verified the Alembic migration against local Docker PostgreSQL.
+
+### How to Run Milestone 1.1
+
+Start PostgreSQL:
+
+```sh
+docker compose up -d postgres
+```
+
+Install or refresh backend dependencies:
+
+```sh
+cd apps/api
+source .venv/bin/activate
+python -m pip install -e ".[dev]"
+```
+
+Apply migrations:
+
+```sh
+alembic -c alembic.ini upgrade head
+```
+
+Run the backend:
+
+```sh
+uvicorn app.main:app --reload --port 8000
+```
+
+Quick API checks:
+
+```sh
+curl http://localhost:8000/health
+curl http://localhost:8000/candidate-profile
+curl http://localhost:8000/jobs
+```
+
+Backend verification:
+
+```sh
+ruff check .
+ruff format --check .
+mypy app
+pytest
+```
+
+### Verification
+
+- `docker compose up -d postgres` started PostgreSQL successfully.
+- `alembic -c alembic.ini upgrade head` applied migration `202609150001`.
+- `ruff check .` passed.
+- `ruff format --check .` passed.
+- `mypy app` passed.
+- `pytest` passed with 5 tests.
+
+### Notes
+
+- Tests use an in-memory SQLite database through FastAPI dependency overrides, so normal backend tests remain fast and do not require Docker.
+- PostgreSQL remains the local and hosted persistence target.
+- Job normalization is represented as a structured placeholder but no normalization logic has been implemented yet.
+- Match results, scoring policy, OpenAI integration, and portal connectors are still future milestones.
+
 ## Next Milestones
 
 ## Overall System Diagram
@@ -195,19 +287,10 @@ Start with the resources in this order if you want to build along with the miles
 1. Run Milestone 1.0 locally and make one harmless text change in the dashboard.
 2. Read enough Next.js App Router docs to understand `layout.tsx`, `page.tsx`, and route conventions.
 3. Read FastAPI first steps, then inspect `apps/api/app/main.py` and `apps/api/app/api/health.py`.
-4. Learn Pydantic models before Milestone 1.1 because candidate evidence and job normalization depend on strict schemas.
-5. Learn PostgreSQL and Alembic before adding persistence and migrations.
+4. Review the Milestone 1.1 Pydantic and SQLAlchemy models because candidate evidence and job normalization depend on strict schemas.
+5. Learn PostgreSQL and Alembic before adding more persistence and migrations.
 6. Learn Vitest, pytest, and Playwright as each milestone adds behavior that needs tests.
 7. Read OpenAI structured outputs only after the fake matcher interface exists.
-
-### Milestone 1.1 - Domain Model and Persistence
-
-- Define Pydantic domain models for candidate profiles, evidence items, job descriptions, normalized job requirements, match results, and user job decisions.
-- Add PostgreSQL connection management.
-- Add database migrations.
-- Persist candidate profile data and manually pasted job descriptions.
-- Keep domain logic separate from API routes and storage details.
-- Add backend tests for model validation, persistence, and API contracts.
 
 ### Milestone 1.2 - Candidate Profile Editor
 

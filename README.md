@@ -9,8 +9,9 @@ Milestone 1 scaffolds the local development foundation only:
 - Health-check endpoint
 - PostgreSQL via Docker Compose
 - Basic linting, formatting, type checking, and test configuration
+- Candidate profile and manual job-description persistence
 
-This milestone intentionally does not include job matching, authentication, OpenAI integration, or company-portal connectors.
+This project intentionally does not include job matching, authentication, OpenAI integration, or company-portal connectors yet.
 
 ## Repository Structure
 
@@ -62,6 +63,14 @@ source .venv/bin/activate
 python -m pip install -e ".[dev]"
 ```
 
+Apply database migrations:
+
+```sh
+cd apps/api
+source .venv/bin/activate
+alembic -c alembic.ini upgrade head
+```
+
 Run the backend:
 
 ```sh
@@ -95,7 +104,16 @@ cd apps/api
 source .venv/bin/activate
 pytest
 ruff check .
+ruff format --check .
 mypy app
+```
+
+Database:
+
+```sh
+cd apps/api
+source .venv/bin/activate
+alembic -c alembic.ini upgrade head
 ```
 
 ## Current Assumptions
