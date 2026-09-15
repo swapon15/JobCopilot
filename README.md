@@ -13,8 +13,9 @@ Milestone 1 scaffolds the local development foundation only:
 - Candidate profile editor in the web app
 - Manual job intake with deterministic normalization
 - Fake local match preview behind a matcher interface
+- Backend-owned Apply/Consider/Skip recommendation policy
 
-This project intentionally does not include job matching, authentication, OpenAI integration, or company-portal connectors yet.
+This project intentionally does not include authentication, OpenAI integration, or company-portal connectors yet.
 
 ## Repository Structure
 
@@ -137,8 +138,14 @@ Job creation currently performs deterministic normalization only. It extracts ob
 
 Match preview generation currently uses a deterministic fake matcher. It stores structured scores, evidence matches, gaps, rationale, interview risks, model name, prompt version, token usage fields, and estimated cost fields without calling OpenAI.
 
+Recommendations are computed by backend policy code after matcher analysis:
+
+- `APPLY`: overall score 80-100 with no mandatory gaps.
+- `CONSIDER`: overall score 65-79.
+- `SKIP`: overall score below 65, or any material mandatory gap.
+
 ## Current Assumptions
 
 - The initial deployment target is Vercel for the frontend, a small managed service for FastAPI, and hosted PostgreSQL/Supabase.
 - The first product workflow will remain manual job-description matching before any portal monitoring is introduced.
-- Final recommendation thresholds will live in backend domain policy, not in LLM prompts or browser code.
+- Final recommendation thresholds live in backend domain policy, not in LLM prompts or browser code.

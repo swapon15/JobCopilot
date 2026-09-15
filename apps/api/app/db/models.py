@@ -78,6 +78,9 @@ class MatchResultRecord(UUIDPrimaryKeyMixin, TimestampMixin, Base):
         ForeignKey("job_descriptions.id", ondelete="CASCADE"), nullable=False, index=True
     )
     scores: Mapped[dict[str, int]] = mapped_column(JSON, nullable=False)
+    recommendation: Mapped[str] = mapped_column(String(20), nullable=False)
+    recommendation_score: Mapped[int] = mapped_column(Integer, nullable=False)
+    recommendation_reason: Mapped[str] = mapped_column(Text, nullable=False)
     mandatory_gaps: Mapped[list[str]] = mapped_column(JSON, nullable=False, default=list)
     preferred_gaps: Mapped[list[str]] = mapped_column(JSON, nullable=False, default=list)
     evidence_matches: Mapped[list[dict[str, object]]] = mapped_column(JSON, nullable=False)

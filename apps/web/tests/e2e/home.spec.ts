@@ -75,6 +75,10 @@ test("creates a candidate profile and saves a pasted job from the dashboard", as
           leadership: 70,
           preference: 80
         },
+        recommendation: "APPLY",
+        recommendation_score: 81,
+        recommendation_reason:
+          "APPLY because the overall score is at least 80 with no mandatory gaps.",
         mandatory_gaps: [],
         preferred_gaps: [],
         evidence_matches: [
@@ -121,5 +125,6 @@ test("creates a candidate profile and saves a pasted job from the dashboard", as
   await page.getByRole("button", { name: "Generate Match Preview" }).click();
 
   await expect(page.getByText("Fake match preview generated.")).toBeVisible();
+  await expect(page.getByText("Score 81: APPLY")).toBeVisible();
   await expect(page.getByText("Technical 88")).toBeVisible();
 });

@@ -13,6 +13,7 @@ from app.domain.models import (
     MatchResult,
     MatchScore,
     NormalizedRequirement,
+    RecommendationAction,
 )
 
 __all__ = [
@@ -30,4 +31,5 @@ __all__ = [
     "MatchResult",
     "MatchScore",
     "NormalizedRequirement",
+    "RecommendationAction",
 ]

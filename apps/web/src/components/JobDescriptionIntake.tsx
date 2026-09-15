@@ -309,7 +309,15 @@ export default function JobDescriptionIntake() {
 
       {matchResult ? (
         <section className="match-preview" aria-labelledby="match-preview-title">
-          <h3 id="match-preview-title">Fake Match Preview</h3>
+          <div className="match-preview-heading">
+            <h3 id="match-preview-title">Fake Match Preview</h3>
+            <strong className={`recommendation-badge ${matchResult.recommendation.toLowerCase()}`}>
+              {matchResult.recommendation}
+            </strong>
+          </div>
+          <p className="recommendation-reason">
+            Score {matchResult.recommendation_score}: {matchResult.recommendation_reason}
+          </p>
           <div className="score-grid">
             <span>Technical {matchResult.scores.technical}</span>
             <span>Direct {matchResult.scores.direct_experience}</span>

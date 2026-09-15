@@ -58,6 +58,9 @@ const matchResponse = {
     leadership: 70,
     preference: 80
   },
+  recommendation: "APPLY",
+  recommendation_score: 81,
+  recommendation_reason: "APPLY because the overall score is at least 80 with no mandatory gaps.",
   mandatory_gaps: [],
   preferred_gaps: [],
   evidence_matches: [
@@ -198,6 +201,11 @@ describe("Home", () => {
     fireEvent.click(screen.getByRole("button", { name: "Generate Match Preview" }));
 
     await screen.findByText("Fake match preview generated.");
+    expect(
+      screen.getByText(
+        "Score 81: APPLY because the overall score is at least 80 with no mandatory gaps."
+      )
+    ).toBeInTheDocument();
     expect(screen.getByText("Technical 88")).toBeInTheDocument();
     expect(
       screen.getByText("fake-local-matcher · fake-match-v1 · cost not estimated")

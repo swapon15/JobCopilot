@@ -19,6 +19,12 @@ class MatchCategory(str, Enum):
     missing = "missing"
 
 
+class RecommendationAction(str, Enum):
+    apply = "APPLY"
+    consider = "CONSIDER"
+    skip = "SKIP"
+
+
 class JobDecisionState(str, Enum):
     applied = "applied"
     saved = "saved"
@@ -135,6 +141,9 @@ class MatchResult(BaseModel):
     candidate_profile_id: UUID
     job_description_id: UUID
     scores: MatchScore
+    recommendation: RecommendationAction = RecommendationAction.consider
+    recommendation_score: int = Field(default=0, ge=0, le=100)
+    recommendation_reason: str = ""
     mandatory_gaps: list[str]
     preferred_gaps: list[str]
     evidence_matches: list[MatchEvidence]

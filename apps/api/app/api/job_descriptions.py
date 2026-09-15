@@ -11,7 +11,7 @@ from app.repositories import (
     JobDescriptionRepository,
     MatchResultRepository,
 )
-from app.services import JobMatcher, get_matcher
+from app.services import JobMatcher, apply_recommendation_policy, get_matcher
 
 router = APIRouter(prefix="/jobs", tags=["jobs"])
 
@@ -82,4 +82,5 @@ def create_match_preview(
             detail="Create a candidate profile before generating a match preview.",
         )
 
-    return match_repository.create(matcher.match(candidate_profile, job))
+    match_result = apply_recommendation_policy(matcher.match(candidate_profile, job))
+    return match_repository.create(match_result)

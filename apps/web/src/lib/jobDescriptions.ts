@@ -39,6 +39,9 @@ export type MatchResult = {
     leadership: number;
     preference: number;
   };
+  recommendation: "APPLY" | "CONSIDER" | "SKIP";
+  recommendation_score: number;
+  recommendation_reason: string;
   mandatory_gaps: string[];
   preferred_gaps: string[];
   evidence_matches: Array<{

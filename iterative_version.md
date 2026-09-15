@@ -411,8 +411,66 @@ Open `http://localhost:3000`, save a candidate profile, save a pasted job, then 
 
 - This milestone intentionally does not call OpenAI.
 - The fake matcher is a development and testing substitute, not a production recommendation engine.
-- Final Apply/Consider/Skip recommendation policy remains Milestone 1.5.
 - Real OpenAI Responses API integration remains Milestone 1.7.
+
+## Milestone 1.5 Summary - Recommendation Policy
+
+Milestone 1.5 adds the backend-owned recommendation policy for match results. The matcher still produces structured analysis, but final `APPLY`, `CONSIDER`, or `SKIP` decisions are computed after matcher output by deterministic backend code.
+
+### What Changed
+
+- Added `RecommendationAction` with `APPLY`, `CONSIDER`, and `SKIP`.
+- Added a recommendation policy service that computes an overall score from the structured match scores.
+- Applied the fixed policy:
+  - `APPLY`: overall score 80-100 with no mandatory gaps.
+  - `CONSIDER`: overall score 65-79.
+  - `SKIP`: overall score below 65.
+- Added material mandatory gap override behavior: any mandatory gap forces `SKIP`.
+- Persisted `recommendation`, `recommendation_score`, and `recommendation_reason` on match results.
+- Added Alembic migration `202609150003`.
+- Updated the API match endpoint so policy is applied immediately before persistence.
+- Updated the web preview to display the recommendation, overall score, and policy reason.
+- Added backend tests proving matcher output cannot independently force threshold decisions.
+- Added backend coverage to confirm direct, transferable, knowledge-only, and missing classifications remain intact.
+- Updated frontend unit and e2e coverage for recommendation display.
+
+### How to Run Milestone 1.5
+
+Start PostgreSQL:
+
+```sh
+docker compose up -d postgres
+```
+
+Run backend migrations and API:
+
+```sh
+cd apps/api
+source .venv/bin/activate
+alembic -c alembic.ini upgrade head
+uvicorn app.main:app --reload --port 8000
+```
+
+Run the frontend in a second terminal:
+
+```sh
+npm run dev:web
+```
+
+Open `http://localhost:3000`, save a candidate profile, save a pasted job, then use `Generate Match Preview`. The preview now shows the backend policy recommendation.
+
+### Verification
+
+- Run `alembic -c alembic.ini upgrade head`.
+- Run `pytest`.
+- Run `ruff check .`, `ruff format --check .`, and `mypy app`.
+- Run `npm run lint:web`, `npm run typecheck:web`, `npm run test:web`, and `npm run test:e2e:web`.
+
+### Notes
+
+- This milestone intentionally does not call OpenAI.
+- The browser displays recommendation results but does not own the thresholds.
+- Future LLM integration must return structured analysis only; backend policy remains the final recommendation authority.
 
 ## Next Milestones
 

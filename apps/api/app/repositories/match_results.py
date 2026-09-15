@@ -13,6 +13,9 @@ class MatchResultRepository:
             candidate_profile_id=str(match_result.candidate_profile_id),
             job_description_id=str(match_result.job_description_id),
             scores=match_result.scores.model_dump(mode="json"),
+            recommendation=match_result.recommendation.value,
+            recommendation_score=match_result.recommendation_score,
+            recommendation_reason=match_result.recommendation_reason,
             mandatory_gaps=match_result.mandatory_gaps,
             preferred_gaps=match_result.preferred_gaps,
             evidence_matches=[

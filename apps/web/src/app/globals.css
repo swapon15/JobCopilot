@@ -332,9 +332,43 @@ button:disabled {
   font-size: 1rem;
 }
 
+.match-preview-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.recommendation-badge {
+  border-radius: 999px;
+  padding: 5px 10px;
+  font-size: 0.78rem;
+  font-weight: 850;
+}
+
+.recommendation-badge.apply {
+  background: #e3f6ea;
+  color: #146133;
+}
+
+.recommendation-badge.consider {
+  background: #fff2c7;
+  color: #72520a;
+}
+
+.recommendation-badge.skip {
+  background: #f9dfdc;
+  color: #8d2b22;
+}
+
 .match-preview p {
   color: var(--muted);
   line-height: 1.55;
+}
+
+.recommendation-reason {
+  margin: 0;
+  font-weight: 700;
 }
 
 .score-grid {
