@@ -1,5 +1,6 @@
 import React from "react";
 import CandidateProfileEditor from "../components/CandidateProfileEditor";
+import JobDescriptionIntake from "../components/JobDescriptionIntake";
 
 const workflowSteps = [
   "Structured candidate profile",
@@ -21,6 +22,7 @@ export default function Home() {
       </section>
 
       <CandidateProfileEditor />
+      <JobDescriptionIntake />
 
       <section className="panel" aria-labelledby="workflow-title">
         <h2 id="workflow-title">First vertical slice</h2>

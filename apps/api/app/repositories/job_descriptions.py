@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.db.models import JobDescriptionRecord
 from app.domain import JobDescription, JobDescriptionCreate
+from app.services.job_normalizer import extract_requirements, normalize_job_description
 
 
 class JobDescriptionRepository:
@@ -12,15 +13,19 @@ class JobDescriptionRepository:
         self.session = session
 
     def create(self, job: JobDescriptionCreate) -> JobDescription:
+        normalized_job = normalize_job_description(job)
+        normalized_requirements = extract_requirements(normalized_job.raw_description)
         record = JobDescriptionRecord(
-            raw_description=job.raw_description,
-            source_url=str(job.source_url) if job.source_url else None,
-            title=job.title,
-            company=job.company,
-            location=job.location,
-            compensation=job.compensation,
-            work_mode=job.work_mode,
-            normalized_requirements=[],
+            raw_description=normalized_job.raw_description,
+            source_url=str(normalized_job.source_url) if normalized_job.source_url else None,
+            title=normalized_job.title,
+            company=normalized_job.company,
+            location=normalized_job.location,
+            compensation=normalized_job.compensation,
+            work_mode=normalized_job.work_mode,
+            normalized_requirements=[
+                requirement.model_dump(mode="json") for requirement in normalized_requirements
+            ],
         )
         self.session.add(record)
         self.session.commit()

@@ -11,6 +11,7 @@ Milestone 1 scaffolds the local development foundation only:
 - Basic linting, formatting, type checking, and test configuration
 - Candidate profile and manual job-description persistence
 - Candidate profile editor in the web app
+- Manual job intake with deterministic normalization
 
 This project intentionally does not include job matching, authentication, OpenAI integration, or company-portal connectors yet.
 
@@ -88,7 +89,7 @@ npm run dev:web
 
 Open http://localhost:3000.
 
-The frontend loads and saves the latest candidate profile through the backend API. Make sure the backend is running before using the profile editor.
+The frontend loads and saves the latest candidate profile and pasted jobs through the backend API. Make sure the backend is running before using the dashboard.
 
 ## Checks
 
@@ -129,6 +130,8 @@ alembic -c alembic.ini upgrade head
 - `POST /jobs`
 - `GET /jobs`
 - `GET /jobs/{job_id}`
+
+Job creation currently performs deterministic normalization only. It extracts obvious title, company, location, compensation, work mode, and requirement signals from the pasted description without using an LLM.
 
 ## Current Assumptions
 

@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-test("creates a candidate profile from the dashboard", async ({ page }) => {
+test("creates a candidate profile and saves a pasted job from the dashboard", async ({ page }) => {
   await page.route("http://localhost:8000/candidate-profile", async (route) => {
     if (route.request().method() === "GET") {
       await route.fulfill({ json: null });
@@ -33,6 +33,35 @@ test("creates a candidate profile from the dashboard", async ({ page }) => {
       }
     });
   });
+  await page.route("http://localhost:8000/jobs", async (route) => {
+    if (route.request().method() === "GET") {
+      await route.fulfill({ json: [] });
+      return;
+    }
+
+    await route.fulfill({
+      json: {
+        id: "job-1",
+        raw_description: "Staff Software Engineer\nRequirements:\n- Must have Python experience",
+        source_url: null,
+        title: "Staff Software Engineer",
+        company: "Example Co",
+        location: "Remote - US",
+        compensation: "$180,000 - $220,000",
+        work_mode: "remote",
+        normalized_requirements: [
+          {
+            text: "Must have Python experience",
+            mandatory: true,
+            match_category: null,
+            evidence_ids: []
+          }
+        ],
+        created_at: "2026-09-15T00:00:00Z",
+        updated_at: "2026-09-15T00:00:00Z"
+      }
+    });
+  });
 
   await page.goto("/");
 
@@ -47,4 +76,12 @@ test("creates a candidate profile from the dashboard", async ({ page }) => {
   await page.getByRole("button", { name: "Create Profile" }).click();
 
   await expect(page.getByText("Profile saved.")).toBeVisible();
+
+  await page
+    .getByLabel("Job description")
+    .fill("Staff Software Engineer\nCompany: Example Co\nRequirements:\n- Must have Python");
+  await page.getByRole("button", { name: "Save Job" }).click();
+
+  await expect(page.getByText("Job saved and normalized.")).toBeVisible();
+  await expect(page.getByText("Must have Python experience")).toBeVisible();
 });

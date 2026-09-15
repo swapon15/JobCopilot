@@ -270,7 +270,76 @@ Open `http://localhost:3000` and use the Candidate Profile editor.
 
 - The editor currently supports one evidence item. Multiple evidence items can be added when the profile experience model needs richer editing.
 - The frontend uses `NEXT_PUBLIC_API_BASE_URL`, defaulting to `http://localhost:8000`.
-- No job matching, OpenAI integration, or job-description frontend workflow has been added yet.
+- At this point, no job matching, OpenAI integration, or job-description frontend workflow had been added yet.
+
+## Milestone 1.3 - Manual Job Intake and Normalization
+
+Added the manual job-description intake workflow and deterministic backend normalization.
+
+### Completed
+
+- Added deterministic backend normalization for pasted job descriptions.
+- Extracts obvious fields when present:
+  - Title.
+  - Company.
+  - Location.
+  - Compensation.
+  - Work mode.
+  - Mandatory and preferred requirements.
+- Preserves explicit user-provided overrides for title, company, location, compensation, and work mode.
+- Persists normalized requirements in the existing `job_descriptions.normalized_requirements` JSON column.
+- Added a frontend Manual Job Intake panel.
+- The panel loads saved jobs from `GET /jobs`.
+- The panel saves pasted jobs with `POST /jobs`.
+- The panel displays normalized fields and extracted requirements.
+- Added saved-job selectors for recently saved jobs.
+- Added backend tests for deterministic normalization and explicit override behavior.
+- Added frontend unit coverage for saving pasted jobs and rendering normalized output.
+- Expanded the Playwright smoke test to cover profile creation and job intake together.
+
+### How to Run Milestone 1.3
+
+Start PostgreSQL:
+
+```sh
+docker compose up -d postgres
+```
+
+Run backend migrations and API:
+
+```sh
+cd apps/api
+source .venv/bin/activate
+alembic -c alembic.ini upgrade head
+uvicorn app.main:app --reload --port 8000
+```
+
+Run the frontend in a second terminal:
+
+```sh
+npm run dev:web
+```
+
+Open `http://localhost:3000`, paste a job description in Manual Job Intake, and save it.
+
+### Verification
+
+- `npm run lint:web` passed.
+- `npm run typecheck:web` passed.
+- `npm run test:web` passed with 3 tests.
+- `npm run test:e2e:web` passed with 1 test.
+- `npm run build:web` passed.
+- `npm run format:check:web` passed.
+- `ruff check .` passed.
+- `ruff format --check .` passed.
+- `mypy app` passed.
+- `pytest` passed with 7 tests.
+
+### Notes
+
+- Normalization is intentionally deterministic and modest. It is not expected to perfectly parse every job description.
+- No LLM calls are used in this milestone.
+- Matching, scoring, recommendation policy, OpenAI integration, and portal connectors remain future work.
 
 ## Next Milestones
 
@@ -357,14 +426,6 @@ Start with the resources in this order if you want to build along with the miles
 5. Learn PostgreSQL and Alembic before adding more persistence and migrations.
 6. Learn Vitest, pytest, and Playwright as each milestone adds behavior that needs tests.
 7. Read OpenAI structured outputs only after the fake matcher interface exists.
-
-### Milestone 1.3 - Manual Job Intake and Normalization
-
-- Add a UI for pasting a job description manually.
-- Add backend normalization models for title, company, location, compensation, work mode, requirements, responsibilities, and preferred qualifications.
-- Implement deterministic parsing and cleanup where possible before introducing LLM support.
-- Persist normalized job records.
-- Add tests for pasted job intake and normalized job display.
 
 ### Milestone 1.4 - LLM Matching Interface and Fake Matcher
 

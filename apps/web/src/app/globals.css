@@ -218,6 +218,106 @@ button:disabled {
   color: #a33a2a;
 }
 
+.normalized-job-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.normalized-panel {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 18px;
+}
+
+.normalized-panel h3,
+.saved-jobs h3 {
+  margin: 0 0 14px;
+  font-size: 1rem;
+}
+
+.normalized-details {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+}
+
+.normalized-details div {
+  display: grid;
+  grid-template-columns: 120px minmax(0, 1fr);
+  gap: 12px;
+}
+
+.normalized-details dt {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.normalized-details dd {
+  margin: 0;
+  line-height: 1.45;
+}
+
+.requirements-list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.requirements-list li {
+  display: grid;
+  gap: 6px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 10px;
+  line-height: 1.45;
+}
+
+.requirements-list li:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.requirements-list span {
+  width: fit-content;
+  border-radius: 999px;
+  background: #e9f4f2;
+  color: var(--accent-strong);
+  font-size: 0.78rem;
+  font-weight: 800;
+  padding: 3px 8px;
+}
+
+.empty-state {
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.saved-jobs {
+  margin-top: 22px;
+}
+
+.saved-job-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.saved-job-list button {
+  min-height: 36px;
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--foreground);
+  font-weight: 700;
+}
+
+.saved-job-list button:hover {
+  border-color: var(--accent);
+  background: #f1faf8;
+}
+
 .workflow-list {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -273,8 +373,14 @@ button:disabled {
 
   .workflow-list,
   .status-grid,
-  .form-grid {
+  .form-grid,
+  .normalized-job-grid {
     grid-template-columns: 1fr;
+  }
+
+  .normalized-details div {
+    grid-template-columns: 1fr;
+    gap: 4px;
   }
 
   .editor-shell,
