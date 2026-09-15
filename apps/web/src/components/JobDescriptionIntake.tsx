@@ -4,7 +4,10 @@ import React, { FormEvent, useEffect, useMemo, useState } from "react";
 import {
   JobDescription,
   JobDescriptionInput,
+  JobDecision,
+  JobDecisionState,
   MatchResult,
+  createJobDecision,
   createJobDescription,
   createJobMatch,
   listJobDescriptions
@@ -52,6 +55,7 @@ export default function JobDescriptionIntake() {
   const [jobs, setJobs] = useState<JobDescription[]>([]);
   const [selectedJob, setSelectedJob] = useState<JobDescription | null>(null);
   const [matchResult, setMatchResult] = useState<MatchResult | null>(null);
+  const [jobDecision, setJobDecision] = useState<JobDecision | null>(null);
   const [status, setStatus] = useState<"idle" | "loading" | "saving" | "saved" | "error">(
     "loading"
   );
@@ -68,6 +72,7 @@ export default function JobDescriptionIntake() {
         setJobs(savedJobs);
         setSelectedJob(savedJobs[0] ?? null);
         setMatchResult(null);
+        setJobDecision(null);
         setStatus("idle");
         setMessage(savedJobs.length ? "Loaded saved jobs." : "No saved jobs yet.");
       })
@@ -106,6 +111,7 @@ export default function JobDescriptionIntake() {
       setJobs((current) => [savedJob, ...current.filter((job) => job.id !== savedJob.id)]);
       setSelectedJob(savedJob);
       setMatchResult(null);
+      setJobDecision(null);
       setForm(emptyJobForm);
       setStatus("saved");
       setMessage("Job saved and normalized.");
@@ -125,11 +131,30 @@ export default function JobDescriptionIntake() {
     try {
       const preview = await createJobMatch(selectedJob.id);
       setMatchResult(preview);
+      setJobDecision(null);
       setStatus("saved");
-      setMessage("Fake match preview generated.");
+      setMessage("Manual match dashboard generated.");
     } catch {
       setStatus("error");
       setMessage("Could not generate a match preview. Save a candidate profile first.");
+    }
+  }
+
+  async function handleDecision(state: JobDecisionState) {
+    if (!selectedJob) {
+      return;
+    }
+    setStatus("saving");
+    setMessage("Saving job decision...");
+
+    try {
+      const decision = await createJobDecision(selectedJob.id, state);
+      setJobDecision(decision);
+      setStatus("saved");
+      setMessage(`Job marked ${state}.`);
+    } catch {
+      setStatus("error");
+      setMessage("Could not save the job decision. Check the backend and try again.");
     }
   }
 
@@ -298,6 +323,7 @@ export default function JobDescriptionIntake() {
                 onClick={() => {
                   setSelectedJob(job);
                   setMatchResult(null);
+                  setJobDecision(null);
                 }}
               >
                 {job.title ?? "Untitled job"}
@@ -308,9 +334,9 @@ export default function JobDescriptionIntake() {
       ) : null}
 
       {matchResult ? (
-        <section className="match-preview" aria-labelledby="match-preview-title">
+        <section className="match-dashboard" aria-labelledby="match-preview-title">
           <div className="match-preview-heading">
-            <h3 id="match-preview-title">Fake Match Preview</h3>
+            <h3 id="match-preview-title">Manual Match Dashboard</h3>
             <strong className={`recommendation-badge ${matchResult.recommendation.toLowerCase()}`}>
               {matchResult.recommendation}
             </strong>
@@ -326,15 +352,90 @@ export default function JobDescriptionIntake() {
             <span>Preference {matchResult.scores.preference}</span>
           </div>
           <p>{matchResult.concise_rationale}</p>
-          <ul className="requirements-list">
-            {matchResult.evidence_matches.map((match) => (
-              <li key={`${match.requirement_text}-${match.match_category}`}>
-                <span>{match.match_category}</span>
-                {match.requirement_text}
-                <small>{match.rationale}</small>
-              </li>
-            ))}
-          </ul>
+          <div className="match-dashboard-grid">
+            <section className="match-panel" aria-labelledby="evidence-matches-title">
+              <h4 id="evidence-matches-title">Supporting Evidence</h4>
+              <ul className="requirements-list">
+                {matchResult.evidence_matches.map((match) => (
+                  <li key={`${match.requirement_text}-${match.match_category}`}>
+                    <span>{match.match_category}</span>
+                    {match.requirement_text}
+                    <small>{match.rationale}</small>
+                  </li>
+                ))}
+              </ul>
+            </section>
+
+            <section className="match-panel" aria-labelledby="missing-requirements-title">
+              <h4 id="missing-requirements-title">Missing Requirements</h4>
+              {matchResult.mandatory_gaps.length || matchResult.preferred_gaps.length ? (
+                <ul className="requirements-list">
+                  {matchResult.mandatory_gaps.map((gap) => (
+                    <li key={`mandatory-${gap}`}>
+                      <span>Mandatory gap</span>
+                      {gap}
+                    </li>
+                  ))}
+                  {matchResult.preferred_gaps.map((gap) => (
+                    <li key={`preferred-${gap}`}>
+                      <span>Preferred gap</span>
+                      {gap}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="empty-state">No missing requirements detected.</p>
+              )}
+            </section>
+
+            <section className="match-panel" aria-labelledby="risk-review-title">
+              <h4 id="risk-review-title">Interview Risks</h4>
+              <ul className="requirements-list">
+                {matchResult.interview_risks.map((risk) => (
+                  <li key={risk}>{risk}</li>
+                ))}
+              </ul>
+            </section>
+
+            <section className="match-panel" aria-labelledby="preference-conflicts-title">
+              <h4 id="preference-conflicts-title">Work Preference Conflicts</h4>
+              {matchResult.work_preference_conflicts.length ? (
+                <ul className="requirements-list">
+                  {matchResult.work_preference_conflicts.map((conflict) => (
+                    <li key={conflict}>{conflict}</li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="empty-state">No work-preference conflicts detected.</p>
+              )}
+            </section>
+          </div>
+          <div className="decision-actions" aria-label="Job decision actions">
+            <button
+              type="button"
+              disabled={status === "saving"}
+              onClick={() => handleDecision("applied")}
+            >
+              Mark Applied
+            </button>
+            <button
+              type="button"
+              disabled={status === "saving"}
+              onClick={() => handleDecision("saved")}
+            >
+              Save for Later
+            </button>
+            <button
+              type="button"
+              disabled={status === "saving"}
+              onClick={() => handleDecision("skipped")}
+            >
+              Skip Job
+            </button>
+            {jobDecision ? (
+              <span className="decision-status">Decision saved: {jobDecision.state}</span>
+            ) : null}
+          </div>
           <p className="metadata-line">
             {matchResult.model_name} · {matchResult.prompt_version} · cost not estimated
           </p>

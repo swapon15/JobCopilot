@@ -14,6 +14,7 @@ Milestone 1 scaffolds the local development foundation only:
 - Manual job intake with deterministic normalization
 - Fake local match preview behind a matcher interface
 - Backend-owned Apply/Consider/Skip recommendation policy
+- Manual match dashboard with persisted job decisions
 
 This project intentionally does not include authentication, OpenAI integration, or company-portal connectors yet.
 
@@ -133,6 +134,7 @@ alembic -c alembic.ini upgrade head
 - `GET /jobs`
 - `GET /jobs/{job_id}`
 - `POST /jobs/{job_id}/match`
+- `POST /jobs/{job_id}/decision`
 
 Job creation currently performs deterministic normalization only. It extracts obvious title, company, location, compensation, work mode, and requirement signals from the pasted description without using an LLM.
 
@@ -143,6 +145,8 @@ Recommendations are computed by backend policy code after matcher analysis:
 - `APPLY`: overall score 80-100 with no mandatory gaps.
 - `CONSIDER`: overall score 65-79.
 - `SKIP`: overall score below 65, or any material mandatory gap.
+
+The manual match dashboard displays the recommendation, supporting evidence, missing requirements, interview risks, work-preference conflicts, and decision actions to mark a job as applied, saved, or skipped.
 
 ## Current Assumptions
 

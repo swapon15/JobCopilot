@@ -24,6 +24,7 @@ class MatchResultRepository:
             ],
             concise_rationale=match_result.concise_rationale,
             interview_risks=match_result.interview_risks,
+            work_preference_conflicts=match_result.work_preference_conflicts,
             model_name=match_result.model_name,
             prompt_version=match_result.prompt_version,
             input_tokens=match_result.input_tokens,

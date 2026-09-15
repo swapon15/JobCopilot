@@ -91,11 +91,23 @@ test("creates a candidate profile and saves a pasted job from the dashboard", as
         ],
         concise_rationale: "Fake matcher preview based on keyword overlap.",
         interview_risks: ["Review direct versus transferable experience manually."],
+        work_preference_conflicts: [],
         model_name: "fake-local-matcher",
         prompt_version: "fake-match-v1",
         input_tokens: null,
         output_tokens: null,
         estimated_cost_usd: null,
+        created_at: "2026-09-15T00:00:00Z"
+      }
+    });
+  });
+  await page.route("http://localhost:8000/jobs/job-1/decision", async (route) => {
+    await route.fulfill({
+      json: {
+        id: "decision-1",
+        job_description_id: "job-1",
+        state: "saved",
+        notes: null,
         created_at: "2026-09-15T00:00:00Z"
       }
     });
@@ -124,7 +136,15 @@ test("creates a candidate profile and saves a pasted job from the dashboard", as
   await expect(page.getByText("Must have Python experience")).toBeVisible();
   await page.getByRole("button", { name: "Generate Match Preview" }).click();
 
-  await expect(page.getByText("Fake match preview generated.")).toBeVisible();
+  await expect(page.getByText("Manual match dashboard generated.")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Manual Match Dashboard" })).toBeVisible();
   await expect(page.getByText("Score 81: APPLY")).toBeVisible();
   await expect(page.getByText("Technical 88")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Supporting Evidence" })).toBeVisible();
+  await expect(page.getByText("No work-preference conflicts detected.")).toBeVisible();
+
+  await page.getByRole("button", { name: "Save for Later" }).click();
+
+  await expect(page.getByText("Job marked saved.")).toBeVisible();
+  await expect(page.getByText("Decision saved: saved")).toBeVisible();
 });

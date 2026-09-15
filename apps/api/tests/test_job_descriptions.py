@@ -93,6 +93,7 @@ def test_create_match_preview_with_fake_matcher(client: TestClient) -> None:
         json={
             "headline": "Principal Software/Data Engineer",
             "summary": "Builds Python and data platforms.",
+            "work_preferences": ["Remote"],
             "evidence": [
                 {
                     "project_or_position": "Data platform",
@@ -136,6 +137,7 @@ def test_create_match_preview_with_fake_matcher(client: TestClient) -> None:
         match["recommendation_reason"]
         == "SKIP because one or more mandatory requirements are missing."
     )
+    assert match["work_preference_conflicts"] == []
     assert match["scores"]["technical"] >= 55
     assert match["evidence_matches"][0]["match_category"] == "direct"
 
@@ -257,3 +259,73 @@ def test_recommendation_policy_preserves_experience_classifications(client: Test
     assert response.status_code == 201
     categories = [match["match_category"] for match in response.json()["evidence_matches"]]
     assert categories == ["direct", "transferable", "knowledge_only", "missing"]
+
+
+def test_create_match_preview_includes_work_preference_conflicts(client: TestClient) -> None:
+    client.post(
+        "/candidate-profile",
+        json={
+            "headline": "Remote-first Engineer",
+            "summary": "Prefers remote teams.",
+            "work_preferences": ["Remote"],
+            "evidence": [
+                {
+                    "project_or_position": "Platform work",
+                    "description": "Built Python services.",
+                    "skills": ["Python"],
+                    "responsibilities": [],
+                    "measurable_outcomes": [],
+                    "experience_type": "direct",
+                }
+            ],
+        },
+    )
+    job_response = client.post(
+        "/jobs",
+        json={
+            "raw_description": "\n".join(
+                [
+                    "Platform Engineer",
+                    "Work mode: onsite",
+                    "Requirements:",
+                    "- Must have Python experience",
+                ]
+            ),
+            "work_mode": "onsite",
+        },
+    )
+
+    response = client.post(f"/jobs/{job_response.json()['id']}/match")
+
+    assert response.status_code == 201
+    assert response.json()["work_preference_conflicts"] == [
+        "Job is listed as onsite, but profile preferences are: Remote."
+    ]
+
+
+def test_create_job_decision(client: TestClient) -> None:
+    job_response = client.post(
+        "/jobs",
+        json={"raw_description": "Staff Software Engineer\nRequirements:\n- Must have Python"},
+    )
+    job_id = job_response.json()["id"]
+
+    response = client.post(
+        f"/jobs/{job_id}/decision",
+        json={"state": "saved", "notes": "Worth reviewing after matching."},
+    )
+
+    assert response.status_code == 201
+    decision = response.json()
+    assert decision["job_description_id"] == job_id
+    assert decision["state"] == "saved"
+    assert decision["notes"] == "Worth reviewing after matching."
+
+
+def test_create_job_decision_requires_existing_job(client: TestClient) -> None:
+    response = client.post(
+        "/jobs/00000000-0000-0000-0000-000000000000/decision",
+        json={"state": "skipped"},
+    )
+
+    assert response.status_code == 404

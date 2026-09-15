@@ -318,7 +318,7 @@ button:disabled {
   background: #f1faf8;
 }
 
-.match-preview {
+.match-dashboard {
   display: grid;
   gap: 14px;
   border: 1px solid var(--border);
@@ -327,7 +327,8 @@ button:disabled {
   padding: 18px;
 }
 
-.match-preview h3 {
+.match-dashboard h3,
+.match-panel h4 {
   margin: 0;
   font-size: 1rem;
 }
@@ -361,7 +362,7 @@ button:disabled {
   color: #8d2b22;
 }
 
-.match-preview p {
+.match-dashboard p {
   color: var(--muted);
   line-height: 1.55;
 }
@@ -369,6 +370,52 @@ button:disabled {
 .recommendation-reason {
   margin: 0;
   font-weight: 700;
+}
+
+.match-dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.match-panel {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px;
+}
+
+.decision-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.decision-actions button {
+  min-height: 38px;
+}
+
+.decision-actions button:nth-child(2) {
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--foreground);
+}
+
+.decision-actions button:nth-child(2):hover {
+  border-color: var(--accent);
+  background: #f1faf8;
+}
+
+.decision-actions button:nth-child(3) {
+  background: #a33a2a;
+}
+
+.decision-status {
+  color: var(--accent-strong);
+  font-weight: 750;
 }
 
 .score-grid {
@@ -451,7 +498,8 @@ button:disabled {
   .workflow-list,
   .status-grid,
   .form-grid,
-  .normalized-job-grid {
+  .normalized-job-grid,
+  .match-dashboard-grid {
     grid-template-columns: 1fr;
   }
 

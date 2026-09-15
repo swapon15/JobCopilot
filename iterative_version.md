@@ -472,6 +472,68 @@ Open `http://localhost:3000`, save a candidate profile, save a pasted job, then 
 - The browser displays recommendation results but does not own the thresholds.
 - Future LLM integration must return structured analysis only; backend policy remains the final recommendation authority.
 
+## Milestone 1.6 Summary - Manual Match Dashboard
+
+Milestone 1.6 turns the match preview into a usable manual review dashboard. The backend now supports persisted job decisions, and the frontend shows the structured recommendation result in sections that are easier to review.
+
+### What Changed
+
+- Added `JobDecisionCreate` for decision persistence requests.
+- Added a `JobDecisionRepository`.
+- Added `POST /jobs/{job_id}/decision`.
+- Added `work_preference_conflicts` to match results and persistence.
+- Added Alembic migration `202609150004`.
+- Updated the fake matcher to report work-mode conflicts against profile work preferences.
+- Reworked the frontend match panel into a manual match dashboard.
+- Displayed:
+  - Recommendation and policy score.
+  - Supporting evidence.
+  - Missing mandatory and preferred requirements.
+  - Interview risks.
+  - Work-preference conflicts.
+- Added actions to mark a job as applied, saved, or skipped.
+- Persisted those decisions through the backend API.
+- Extended backend tests for decision creation and work-preference conflict output.
+- Extended frontend unit and e2e tests for the manual match workflow.
+
+### How to Run Milestone 1.6
+
+Start PostgreSQL:
+
+```sh
+docker compose up -d postgres
+```
+
+Run backend migrations and API:
+
+```sh
+cd apps/api
+source .venv/bin/activate
+alembic -c alembic.ini upgrade head
+uvicorn app.main:app --reload --port 8000
+```
+
+Run the frontend in a second terminal:
+
+```sh
+npm run dev:web
+```
+
+Open `http://localhost:3000`, save a candidate profile, save a pasted job, generate a match dashboard, then mark the job as applied, saved, or skipped.
+
+### Verification
+
+- Run `alembic -c alembic.ini upgrade head`.
+- Run `pytest`.
+- Run `ruff check .`, `ruff format --check .`, and `mypy app`.
+- Run `npm run lint:web`, `npm run typecheck:web`, `npm run test:web`, and `npm run test:e2e:web`.
+
+### Notes
+
+- This milestone still uses the fake local matcher.
+- Decision persistence records the user's manual choice; it does not submit applications or contact employers.
+- The fuller OpenAI matcher remains Milestone 1.7.
+
 ## Next Milestones
 
 ## Overall System Diagram
@@ -557,25 +619,6 @@ Start with the resources in this order if you want to build along with the miles
 5. Learn PostgreSQL and Alembic before adding more persistence and migrations.
 6. Learn Vitest, pytest, and Playwright as each milestone adds behavior that needs tests.
 7. Read OpenAI structured outputs only after the fake matcher interface exists.
-
-### Milestone 1.5 - Recommendation Policy
-
-- Implement final backend recommendation policy outside the LLM.
-- Apply the fixed thresholds:
-  - `APPLY`: score 80-100 with no material mandatory gaps.
-  - `CONSIDER`: score 65-79.
-  - `SKIP`: score below 65.
-- Add material mandatory gap override behavior.
-- Ensure direct, transferable, knowledge-only, and missing experience classifications are preserved.
-- Add tests that prove the LLM cannot independently change thresholds.
-
-### Milestone 1.6 - Manual Match Dashboard
-
-- Display structured recommendation results in the web dashboard.
-- Show why the candidate matches, supporting evidence, missing requirements, interview risks, and work-preference conflicts.
-- Add actions to mark a job as applied, saved, or skipped.
-- Persist the user's decision.
-- Add e2e coverage for the manual match workflow.
 
 ### Milestone 1.7 - OpenAI Responses API Integration
 

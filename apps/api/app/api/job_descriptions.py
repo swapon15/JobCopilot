@@ -5,9 +5,16 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.db import get_db_session
-from app.domain import JobDescription, JobDescriptionCreate, MatchResult
+from app.domain import (
+    JobDecision,
+    JobDecisionCreate,
+    JobDescription,
+    JobDescriptionCreate,
+    MatchResult,
+)
 from app.repositories import (
     CandidateProfileRepository,
+    JobDecisionRepository,
     JobDescriptionRepository,
     MatchResultRepository,
 )
@@ -32,6 +39,12 @@ def get_match_result_repository(
     session: Annotated[Session, Depends(get_db_session)],
 ) -> MatchResultRepository:
     return MatchResultRepository(session)
+
+
+def get_job_decision_repository(
+    session: Annotated[Session, Depends(get_db_session)],
+) -> JobDecisionRepository:
+    return JobDecisionRepository(session)
 
 
 @router.post("", response_model=JobDescription, status_code=status.HTTP_201_CREATED)
@@ -84,3 +97,22 @@ def create_match_preview(
 
     match_result = apply_recommendation_policy(matcher.match(candidate_profile, job))
     return match_repository.create(match_result)
+
+
+@router.post(
+    "/{job_id}/decision",
+    response_model=JobDecision,
+    status_code=status.HTTP_201_CREATED,
+)
+def create_job_decision(
+    job_id: UUID,
+    decision: JobDecisionCreate,
+    job_repository: Annotated[JobDescriptionRepository, Depends(get_repository)],
+    decision_repository: Annotated[JobDecisionRepository, Depends(get_job_decision_repository)],
+) -> JobDecision:
+    try:
+        job_repository.get(job_id)
+    except LookupError as error:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(error)) from error
+
+    return decision_repository.create(job_id, decision)

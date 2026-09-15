@@ -86,6 +86,7 @@ class MatchResultRecord(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     evidence_matches: Mapped[list[dict[str, object]]] = mapped_column(JSON, nullable=False)
     concise_rationale: Mapped[str] = mapped_column(Text, nullable=False)
     interview_risks: Mapped[list[str]] = mapped_column(JSON, nullable=False, default=list)
+    work_preference_conflicts: Mapped[list[str]] = mapped_column(JSON, nullable=False, default=list)
     model_name: Mapped[str] = mapped_column(String(100), nullable=False)
     prompt_version: Mapped[str] = mapped_column(String(100), nullable=False)
     input_tokens: Mapped[int | None] = mapped_column(Integer, nullable=True)

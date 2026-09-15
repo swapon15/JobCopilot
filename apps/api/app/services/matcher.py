@@ -72,6 +72,7 @@ class FakeJobMatcher:
                 "Fake matcher may overstate fit when keywords overlap without deep context.",
                 "Direct versus transferable experience should be reviewed manually.",
             ],
+            work_preference_conflicts=self._work_preference_conflicts(profile, job),
             model_name=self.model_name,
             prompt_version=self.prompt_version,
             input_tokens=None,
@@ -79,6 +80,22 @@ class FakeJobMatcher:
             estimated_cost_usd=None,
             created_at=_EMPTY_DATETIME,
         )
+
+    def _work_preference_conflicts(
+        self, profile: CandidateProfile, job: JobDescription
+    ) -> list[str]:
+        if not job.work_mode or not profile.work_preferences:
+            return []
+
+        normalized_work_mode = job.work_mode.lower()
+        normalized_preferences = {preference.lower() for preference in profile.work_preferences}
+        if normalized_work_mode in normalized_preferences:
+            return []
+
+        return [
+            f"Job is listed as {job.work_mode}, but profile preferences are: "
+            f"{', '.join(profile.work_preferences)}."
+        ]
 
     def _match_requirement(
         self, requirement_text: str, evidence: list[CandidateEvidence]

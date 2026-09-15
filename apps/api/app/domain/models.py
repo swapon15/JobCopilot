@@ -119,6 +119,11 @@ class JobDecision(BaseModel):
     created_at: datetime
 
 
+class JobDecisionCreate(BaseModel):
+    state: JobDecisionState
+    notes: str | None = None
+
+
 class MatchScore(BaseModel):
     technical: int = Field(ge=0, le=100)
     direct_experience: int = Field(ge=0, le=100)
@@ -149,6 +154,7 @@ class MatchResult(BaseModel):
     evidence_matches: list[MatchEvidence]
     concise_rationale: str
     interview_risks: list[str]
+    work_preference_conflicts: list[str] = Field(default_factory=list)
     model_name: str
     prompt_version: str
     input_tokens: int | None

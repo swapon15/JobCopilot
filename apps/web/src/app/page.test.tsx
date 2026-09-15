@@ -73,6 +73,7 @@ const matchResponse = {
   ],
   concise_rationale: "Fake matcher preview based on keyword overlap.",
   interview_risks: ["Review direct versus transferable experience manually."],
+  work_preference_conflicts: [],
   model_name: "fake-local-matcher",
   prompt_version: "fake-match-v1",
   input_tokens: null,
@@ -110,6 +111,15 @@ function mockApi(options: { latestProfile?: unknown; jobs?: unknown[] } = {}) {
     }
     if (url.endsWith("/jobs/job-1/match") && method === "POST") {
       return jsonResponse(matchResponse);
+    }
+    if (url.endsWith("/jobs/job-1/decision") && method === "POST") {
+      return jsonResponse({
+        id: "decision-1",
+        job_description_id: "job-1",
+        state: "saved",
+        notes: null,
+        created_at: "2026-09-15T00:00:00Z"
+      });
     }
 
     throw new Error(`Unhandled request in test: ${method} ${url}`);
@@ -200,18 +210,32 @@ describe("Home", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Generate Match Preview" }));
 
-    await screen.findByText("Fake match preview generated.");
+    await screen.findByText("Manual match dashboard generated.");
+    expect(screen.getByRole("heading", { name: "Manual Match Dashboard" })).toBeInTheDocument();
     expect(
       screen.getByText(
         "Score 81: APPLY because the overall score is at least 80 with no mandatory gaps."
       )
     ).toBeInTheDocument();
     expect(screen.getByText("Technical 88")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Supporting Evidence" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Missing Requirements" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Interview Risks" })).toBeInTheDocument();
+    expect(screen.getByText("No work-preference conflicts detected.")).toBeInTheDocument();
     expect(
       screen.getByText("fake-local-matcher · fake-match-v1 · cost not estimated")
     ).toBeInTheDocument();
     expect(fetchMock).toHaveBeenCalledWith(
       "http://localhost:8000/jobs/job-1/match",
+      expect.objectContaining({ method: "POST" })
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Save for Later" }));
+
+    await screen.findByText("Job marked saved.");
+    expect(screen.getByText("Decision saved: saved")).toBeInTheDocument();
+    expect(fetchMock).toHaveBeenCalledWith(
+      "http://localhost:8000/jobs/job-1/decision",
       expect.objectContaining({ method: "POST" })
     );
   });

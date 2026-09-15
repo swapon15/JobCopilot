@@ -52,11 +52,22 @@ export type MatchResult = {
   }>;
   concise_rationale: string;
   interview_risks: string[];
+  work_preference_conflicts: string[];
   model_name: string;
   prompt_version: string;
   input_tokens: number | null;
   output_tokens: number | null;
   estimated_cost_usd: number | null;
+  created_at: string;
+};
+
+export type JobDecisionState = "applied" | "saved" | "skipped";
+
+export type JobDecision = {
+  id: string;
+  job_description_id: string;
+  state: JobDecisionState;
+  notes: string | null;
   created_at: string;
 };
 
@@ -92,5 +103,12 @@ export function createJobDescription(job: JobDescriptionInput): Promise<JobDescr
 export function createJobMatch(jobId: string): Promise<MatchResult> {
   return requestJobDescriptions<MatchResult>(`/jobs/${jobId}/match`, {
     method: "POST"
+  });
+}
+
+export function createJobDecision(jobId: string, state: JobDecisionState): Promise<JobDecision> {
+  return requestJobDescriptions<JobDecision>(`/jobs/${jobId}/decision`, {
+    method: "POST",
+    body: JSON.stringify({ state })
   });
 }
