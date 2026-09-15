@@ -47,6 +47,37 @@ const jobResponse = {
   updated_at: "2026-09-15T00:00:00Z"
 };
 
+const matchResponse = {
+  id: "match-1",
+  candidate_profile_id: "profile-1",
+  job_description_id: "job-1",
+  scores: {
+    technical: 88,
+    direct_experience: 70,
+    level: 75,
+    leadership: 70,
+    preference: 80
+  },
+  mandatory_gaps: [],
+  preferred_gaps: [],
+  evidence_matches: [
+    {
+      requirement_text: "Must have Python experience",
+      match_category: "direct",
+      evidence_ids: ["evidence-1"],
+      rationale: "Matched on: python."
+    }
+  ],
+  concise_rationale: "Fake matcher preview based on keyword overlap.",
+  interview_risks: ["Review direct versus transferable experience manually."],
+  model_name: "fake-local-matcher",
+  prompt_version: "fake-match-v1",
+  input_tokens: null,
+  output_tokens: null,
+  estimated_cost_usd: null,
+  created_at: "2026-09-15T00:00:00Z"
+};
+
 function jsonResponse(body: unknown): Response {
   return {
     ok: true,
@@ -73,6 +104,9 @@ function mockApi(options: { latestProfile?: unknown; jobs?: unknown[] } = {}) {
     }
     if (url.endsWith("/jobs") && method === "POST") {
       return jsonResponse(jobResponse);
+    }
+    if (url.endsWith("/jobs/job-1/match") && method === "POST") {
+      return jsonResponse(matchResponse);
     }
 
     throw new Error(`Unhandled request in test: ${method} ${url}`);
@@ -158,6 +192,18 @@ describe("Home", () => {
     expect(screen.getByText("Must have Python experience")).toBeInTheDocument();
     expect(fetchMock).toHaveBeenCalledWith(
       "http://localhost:8000/jobs",
+      expect.objectContaining({ method: "POST" })
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Generate Match Preview" }));
+
+    await screen.findByText("Fake match preview generated.");
+    expect(screen.getByText("Technical 88")).toBeInTheDocument();
+    expect(
+      screen.getByText("fake-local-matcher · fake-match-v1 · cost not estimated")
+    ).toBeInTheDocument();
+    expect(fetchMock).toHaveBeenCalledWith(
+      "http://localhost:8000/jobs/job-1/match",
       expect.objectContaining({ method: "POST" })
     );
   });

@@ -318,6 +318,49 @@ button:disabled {
   background: #f1faf8;
 }
 
+.match-preview {
+  display: grid;
+  gap: 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-top: 22px;
+  padding: 18px;
+}
+
+.match-preview h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.match-preview p {
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.score-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.score-grid span {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px;
+  text-align: center;
+  font-weight: 800;
+}
+
+.requirements-list small {
+  color: var(--muted);
+}
+
+.metadata-line {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 650;
+}
+
 .workflow-list {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -381,6 +424,10 @@ button:disabled {
   .normalized-details div {
     grid-template-columns: 1fr;
     gap: 4px;
+  }
+
+  .score-grid {
+    grid-template-columns: 1fr;
   }
 
   .editor-shell,

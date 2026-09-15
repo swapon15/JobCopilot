@@ -341,6 +341,79 @@ Open `http://localhost:3000`, paste a job description in Manual Job Intake, and 
 - No LLM calls are used in this milestone.
 - Matching, scoring, recommendation policy, OpenAI integration, and portal connectors remain future work.
 
+## Milestone 1.4 - LLM Matching Interface and Fake Matcher
+
+Added the backend matcher boundary and a deterministic fake matcher so the app can produce structured match previews without calling OpenAI.
+
+### Completed
+
+- Added structured match result domain models:
+  - Scores.
+  - Evidence matches.
+  - Mandatory gaps.
+  - Preferred gaps.
+  - Concise rationale.
+  - Interview risks.
+  - Model metadata.
+  - Prompt version.
+  - Token usage fields.
+  - Estimated cost field.
+- Added a `JobMatcher` interface and `FakeJobMatcher` implementation.
+- Added `match_results` persistence table and Alembic migration `202609150002`.
+- Added `POST /jobs/{job_id}/match`.
+- The match endpoint uses the latest candidate profile and selected job description.
+- The fake matcher performs deterministic keyword overlap against candidate evidence.
+- The fake matcher stores `model_name`, `prompt_version`, `input_tokens`, `output_tokens`, and `estimated_cost_usd`.
+- Added frontend support for generating and displaying a fake match preview.
+- Added backend tests for missing profile handling and successful fake match generation.
+- Extended frontend tests and e2e coverage for match preview generation.
+
+### How to Run Milestone 1.4
+
+Start PostgreSQL:
+
+```sh
+docker compose up -d postgres
+```
+
+Run backend migrations and API:
+
+```sh
+cd apps/api
+source .venv/bin/activate
+alembic -c alembic.ini upgrade head
+uvicorn app.main:app --reload --port 8000
+```
+
+Run the frontend in a second terminal:
+
+```sh
+npm run dev:web
+```
+
+Open `http://localhost:3000`, save a candidate profile, save a pasted job, then use `Generate Match Preview`.
+
+### Verification
+
+- `alembic -c alembic.ini upgrade head` applied migration `202609150002`.
+- `npm run lint:web` passed.
+- `npm run typecheck:web` passed.
+- `npm run test:web` passed.
+- `npm run test:e2e:web` passed.
+- `npm run build:web` passed.
+- `npm run format:check:web` passed.
+- `ruff check .` passed.
+- `ruff format --check .` passed.
+- `mypy app` passed.
+- `pytest` passed with 9 tests.
+
+### Notes
+
+- This milestone intentionally does not call OpenAI.
+- The fake matcher is a development and testing substitute, not a production recommendation engine.
+- Final Apply/Consider/Skip recommendation policy remains Milestone 1.5.
+- Real OpenAI Responses API integration remains Milestone 1.7.
+
 ## Next Milestones
 
 ## Overall System Diagram
@@ -426,14 +499,6 @@ Start with the resources in this order if you want to build along with the miles
 5. Learn PostgreSQL and Alembic before adding more persistence and migrations.
 6. Learn Vitest, pytest, and Playwright as each milestone adds behavior that needs tests.
 7. Read OpenAI structured outputs only after the fake matcher interface exists.
-
-### Milestone 1.4 - LLM Matching Interface and Fake Matcher
-
-- Define an LLM gateway interface behind dependency injection.
-- Add a fake matcher implementation for tests and local workflow development.
-- Define structured match output models for scores, gaps, evidence matches, rationale, and interview risks.
-- Store model name, prompt version, token usage, and estimated cost fields, even if the fake matcher leaves them empty.
-- Do not call OpenAI from the browser.
 
 ### Milestone 1.5 - Recommendation Policy
 

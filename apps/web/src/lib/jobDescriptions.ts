@@ -28,6 +28,35 @@ export type JobDescription = JobDescriptionInput & {
   updated_at: string;
 };
 
+export type MatchResult = {
+  id: string;
+  candidate_profile_id: string;
+  job_description_id: string;
+  scores: {
+    technical: number;
+    direct_experience: number;
+    level: number;
+    leadership: number;
+    preference: number;
+  };
+  mandatory_gaps: string[];
+  preferred_gaps: string[];
+  evidence_matches: Array<{
+    requirement_text: string;
+    match_category: "direct" | "transferable" | "knowledge_only" | "missing";
+    evidence_ids: string[];
+    rationale: string;
+  }>;
+  concise_rationale: string;
+  interview_risks: string[];
+  model_name: string;
+  prompt_version: string;
+  input_tokens: number | null;
+  output_tokens: number | null;
+  estimated_cost_usd: number | null;
+  created_at: string;
+};
+
 const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
 
 async function requestJobDescriptions<T>(path: string, init?: RequestInit): Promise<T> {
@@ -54,5 +83,11 @@ export function createJobDescription(job: JobDescriptionInput): Promise<JobDescr
   return requestJobDescriptions<JobDescription>("/jobs", {
     method: "POST",
     body: JSON.stringify(job)
+  });
+}
+
+export function createJobMatch(jobId: string): Promise<MatchResult> {
+  return requestJobDescriptions<MatchResult>(`/jobs/${jobId}/match`, {
+    method: "POST"
   });
 }

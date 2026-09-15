@@ -111,3 +111,38 @@ class JobDecision(BaseModel):
     state: JobDecisionState
     notes: str | None
     created_at: datetime
+
+
+class MatchScore(BaseModel):
+    technical: int = Field(ge=0, le=100)
+    direct_experience: int = Field(ge=0, le=100)
+    level: int = Field(ge=0, le=100)
+    leadership: int = Field(ge=0, le=100)
+    preference: int = Field(ge=0, le=100)
+
+
+class MatchEvidence(BaseModel):
+    requirement_text: str
+    match_category: MatchCategory
+    evidence_ids: list[UUID] = Field(default_factory=list)
+    rationale: str
+
+
+class MatchResult(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    candidate_profile_id: UUID
+    job_description_id: UUID
+    scores: MatchScore
+    mandatory_gaps: list[str]
+    preferred_gaps: list[str]
+    evidence_matches: list[MatchEvidence]
+    concise_rationale: str
+    interview_risks: list[str]
+    model_name: str
+    prompt_version: str
+    input_tokens: int | None
+    output_tokens: int | None
+    estimated_cost_usd: float | None
+    created_at: datetime

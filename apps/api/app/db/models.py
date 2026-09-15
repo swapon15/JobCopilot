@@ -1,4 +1,4 @@
-from sqlalchemy import JSON, Boolean, ForeignKey, String, Text
+from sqlalchemy import JSON, Boolean, Float, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base, TimestampMixin, UUIDPrimaryKeyMixin
@@ -66,3 +66,25 @@ class JobDecisionRecord(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     job_description: Mapped[JobDescriptionRecord] = relationship(back_populates="decisions")
+
+
+class MatchResultRecord(UUIDPrimaryKeyMixin, TimestampMixin, Base):
+    __tablename__ = "match_results"
+
+    candidate_profile_id: Mapped[str] = mapped_column(
+        ForeignKey("candidate_profiles.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    job_description_id: Mapped[str] = mapped_column(
+        ForeignKey("job_descriptions.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    scores: Mapped[dict[str, int]] = mapped_column(JSON, nullable=False)
+    mandatory_gaps: Mapped[list[str]] = mapped_column(JSON, nullable=False, default=list)
+    preferred_gaps: Mapped[list[str]] = mapped_column(JSON, nullable=False, default=list)
+    evidence_matches: Mapped[list[dict[str, object]]] = mapped_column(JSON, nullable=False)
+    concise_rationale: Mapped[str] = mapped_column(Text, nullable=False)
+    interview_risks: Mapped[list[str]] = mapped_column(JSON, nullable=False, default=list)
+    model_name: Mapped[str] = mapped_column(String(100), nullable=False)
+    prompt_version: Mapped[str] = mapped_column(String(100), nullable=False)
+    input_tokens: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    output_tokens: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    estimated_cost_usd: Mapped[float | None] = mapped_column(Float, nullable=True)

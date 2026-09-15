@@ -62,6 +62,40 @@ test("creates a candidate profile and saves a pasted job from the dashboard", as
       }
     });
   });
+  await page.route("http://localhost:8000/jobs/job-1/match", async (route) => {
+    await route.fulfill({
+      json: {
+        id: "match-1",
+        candidate_profile_id: "profile-1",
+        job_description_id: "job-1",
+        scores: {
+          technical: 88,
+          direct_experience: 70,
+          level: 75,
+          leadership: 70,
+          preference: 80
+        },
+        mandatory_gaps: [],
+        preferred_gaps: [],
+        evidence_matches: [
+          {
+            requirement_text: "Must have Python experience",
+            match_category: "direct",
+            evidence_ids: ["evidence-1"],
+            rationale: "Matched on: python."
+          }
+        ],
+        concise_rationale: "Fake matcher preview based on keyword overlap.",
+        interview_risks: ["Review direct versus transferable experience manually."],
+        model_name: "fake-local-matcher",
+        prompt_version: "fake-match-v1",
+        input_tokens: null,
+        output_tokens: null,
+        estimated_cost_usd: null,
+        created_at: "2026-09-15T00:00:00Z"
+      }
+    });
+  });
 
   await page.goto("/");
 
@@ -84,4 +118,8 @@ test("creates a candidate profile and saves a pasted job from the dashboard", as
 
   await expect(page.getByText("Job saved and normalized.")).toBeVisible();
   await expect(page.getByText("Must have Python experience")).toBeVisible();
+  await page.getByRole("button", { name: "Generate Match Preview" }).click();
+
+  await expect(page.getByText("Fake match preview generated.")).toBeVisible();
+  await expect(page.getByText("Technical 88")).toBeVisible();
 });

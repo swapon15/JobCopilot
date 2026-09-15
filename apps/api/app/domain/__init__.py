@@ -9,6 +9,9 @@ from app.domain.models import (
     JobDescription,
     JobDescriptionCreate,
     MatchCategory,
+    MatchEvidence,
+    MatchResult,
+    MatchScore,
     NormalizedRequirement,
 )
 
@@ -23,5 +26,8 @@ __all__ = [
     "JobDecision",
     "JobDecisionState",
     "MatchCategory",
+    "MatchEvidence",
+    "MatchResult",
+    "MatchScore",
     "NormalizedRequirement",
 ]

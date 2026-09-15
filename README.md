@@ -12,6 +12,7 @@ Milestone 1 scaffolds the local development foundation only:
 - Candidate profile and manual job-description persistence
 - Candidate profile editor in the web app
 - Manual job intake with deterministic normalization
+- Fake local match preview behind a matcher interface
 
 This project intentionally does not include job matching, authentication, OpenAI integration, or company-portal connectors yet.
 
@@ -130,8 +131,11 @@ alembic -c alembic.ini upgrade head
 - `POST /jobs`
 - `GET /jobs`
 - `GET /jobs/{job_id}`
+- `POST /jobs/{job_id}/match`
 
 Job creation currently performs deterministic normalization only. It extracts obvious title, company, location, compensation, work mode, and requirement signals from the pasted description without using an LLM.
+
+Match preview generation currently uses a deterministic fake matcher. It stores structured scores, evidence matches, gaps, rationale, interview risks, model name, prompt version, token usage fields, and estimated cost fields without calling OpenAI.
 
 ## Current Assumptions
 

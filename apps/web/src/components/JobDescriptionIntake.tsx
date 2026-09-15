@@ -4,7 +4,9 @@ import React, { FormEvent, useEffect, useMemo, useState } from "react";
 import {
   JobDescription,
   JobDescriptionInput,
+  MatchResult,
   createJobDescription,
+  createJobMatch,
   listJobDescriptions
 } from "../lib/jobDescriptions";
 
@@ -49,6 +51,7 @@ export default function JobDescriptionIntake() {
   const [form, setForm] = useState<JobFormState>(emptyJobForm);
   const [jobs, setJobs] = useState<JobDescription[]>([]);
   const [selectedJob, setSelectedJob] = useState<JobDescription | null>(null);
+  const [matchResult, setMatchResult] = useState<MatchResult | null>(null);
   const [status, setStatus] = useState<"idle" | "loading" | "saving" | "saved" | "error">(
     "loading"
   );
@@ -64,6 +67,7 @@ export default function JobDescriptionIntake() {
         }
         setJobs(savedJobs);
         setSelectedJob(savedJobs[0] ?? null);
+        setMatchResult(null);
         setStatus("idle");
         setMessage(savedJobs.length ? "Loaded saved jobs." : "No saved jobs yet.");
       })
@@ -101,12 +105,31 @@ export default function JobDescriptionIntake() {
       const savedJob = await createJobDescription(formToJobInput(form));
       setJobs((current) => [savedJob, ...current.filter((job) => job.id !== savedJob.id)]);
       setSelectedJob(savedJob);
+      setMatchResult(null);
       setForm(emptyJobForm);
       setStatus("saved");
       setMessage("Job saved and normalized.");
     } catch {
       setStatus("error");
       setMessage("Could not save the job. Check the backend and try again.");
+    }
+  }
+
+  async function handleGenerateMatch() {
+    if (!selectedJob) {
+      return;
+    }
+    setStatus("saving");
+    setMessage("Generating fake match preview...");
+
+    try {
+      const preview = await createJobMatch(selectedJob.id);
+      setMatchResult(preview);
+      setStatus("saved");
+      setMessage("Fake match preview generated.");
+    } catch {
+      setStatus("error");
+      setMessage("Could not generate a match preview. Save a candidate profile first.");
     }
   }
 
@@ -203,6 +226,13 @@ export default function JobDescriptionIntake() {
           <button type="submit" disabled={!canSave}>
             Save Job
           </button>
+          <button
+            type="button"
+            disabled={!selectedJob || status === "saving"}
+            onClick={handleGenerateMatch}
+          >
+            Generate Match Preview
+          </button>
           <output className={`form-status ${status}`} aria-live="polite">
             {message}
           </output>
@@ -262,11 +292,44 @@ export default function JobDescriptionIntake() {
           <h3 id="saved-jobs-title">Saved Jobs</h3>
           <div className="saved-job-list">
             {jobs.slice(0, 4).map((job) => (
-              <button key={job.id} type="button" onClick={() => setSelectedJob(job)}>
+              <button
+                key={job.id}
+                type="button"
+                onClick={() => {
+                  setSelectedJob(job);
+                  setMatchResult(null);
+                }}
+              >
                 {job.title ?? "Untitled job"}
               </button>
             ))}
           </div>
+        </section>
+      ) : null}
+
+      {matchResult ? (
+        <section className="match-preview" aria-labelledby="match-preview-title">
+          <h3 id="match-preview-title">Fake Match Preview</h3>
+          <div className="score-grid">
+            <span>Technical {matchResult.scores.technical}</span>
+            <span>Direct {matchResult.scores.direct_experience}</span>
+            <span>Level {matchResult.scores.level}</span>
+            <span>Leadership {matchResult.scores.leadership}</span>
+            <span>Preference {matchResult.scores.preference}</span>
+          </div>
+          <p>{matchResult.concise_rationale}</p>
+          <ul className="requirements-list">
+            {matchResult.evidence_matches.map((match) => (
+              <li key={`${match.requirement_text}-${match.match_category}`}>
+                <span>{match.match_category}</span>
+                {match.requirement_text}
+                <small>{match.rationale}</small>
+              </li>
+            ))}
+          </ul>
+          <p className="metadata-line">
+            {matchResult.model_name} · {matchResult.prompt_version} · cost not estimated
+          </p>
         </section>
       ) : null}
     </section>
