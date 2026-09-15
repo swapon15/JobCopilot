@@ -206,6 +206,72 @@ pytest
 - Job normalization is represented as a structured placeholder but no normalization logic has been implemented yet.
 - Match results, scoring policy, OpenAI integration, and portal connectors are still future milestones.
 
+## Milestone 1.2 - Candidate Profile Editor
+
+Added the first usable frontend workflow: create and edit the structured candidate profile from the web app.
+
+### Completed
+
+- Added a candidate profile editor to the Next.js dashboard.
+- The editor loads the latest saved profile from `GET /candidate-profile`.
+- The editor creates a profile with `POST /candidate-profile`.
+- The editor saves changes to an existing profile with `PUT /candidate-profile/{profile_id}`.
+- Added a backend update path for candidate profiles.
+- Added structured form fields for:
+  - Headline.
+  - Professional summary.
+  - Target roles.
+  - Preferred locations.
+  - Work preferences.
+  - Sponsorship requirement.
+  - One evidence item with project/position, description, skills, responsibilities, measurable outcomes, and experience type.
+- Added frontend unit tests that mock the profile API for create and edit workflows.
+- Updated the Playwright smoke test to cover profile creation with a mocked API response.
+
+### How to Run Milestone 1.2
+
+Start PostgreSQL:
+
+```sh
+docker compose up -d postgres
+```
+
+Run backend migrations and API:
+
+```sh
+cd apps/api
+source .venv/bin/activate
+alembic -c alembic.ini upgrade head
+uvicorn app.main:app --reload --port 8000
+```
+
+Run the frontend in a second terminal:
+
+```sh
+npm run dev:web
+```
+
+Open `http://localhost:3000` and use the Candidate Profile editor.
+
+### Verification
+
+- `npm run lint:web` passed.
+- `npm run typecheck:web` passed.
+- `npm run test:web` passed with 2 tests.
+- `npm run test:e2e:web` passed with 1 test.
+- `npm run build:web` passed.
+- `npm run format:check:web` passed.
+- `ruff check .` passed.
+- `ruff format --check .` passed.
+- `mypy app` passed.
+- `pytest` passed with 6 tests.
+
+### Notes
+
+- The editor currently supports one evidence item. Multiple evidence items can be added when the profile experience model needs richer editing.
+- The frontend uses `NEXT_PUBLIC_API_BASE_URL`, defaulting to `http://localhost:8000`.
+- No job matching, OpenAI integration, or job-description frontend workflow has been added yet.
+
 ## Next Milestones
 
 ## Overall System Diagram
@@ -291,14 +357,6 @@ Start with the resources in this order if you want to build along with the miles
 5. Learn PostgreSQL and Alembic before adding more persistence and migrations.
 6. Learn Vitest, pytest, and Playwright as each milestone adds behavior that needs tests.
 7. Read OpenAI structured outputs only after the fake matcher interface exists.
-
-### Milestone 1.2 - Candidate Profile Editor
-
-- Build frontend views for creating and editing a structured candidate profile.
-- Support evidence items with project or position, description, skills, responsibilities, outcomes, and experience type.
-- Add API integration between the profile UI and backend persistence.
-- Add validation for required profile and evidence fields.
-- Add frontend unit and e2e coverage for the profile workflow.
 
 ### Milestone 1.3 - Manual Job Intake and Normalization
 

@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.db import get_db_session
-from app.domain import CandidateProfile, CandidateProfileCreate
+from app.domain import CandidateProfile, CandidateProfileCreate, CandidateProfileUpdate
 from app.repositories import CandidateProfileRepository
 
 router = APIRouter(prefix="/candidate-profile", tags=["candidate profile"])
@@ -39,5 +39,17 @@ def get_candidate_profile(
 ) -> CandidateProfile:
     try:
         return repository.get(profile_id)
+    except LookupError as error:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(error)) from error
+
+
+@router.put("/{profile_id}", response_model=CandidateProfile)
+def update_candidate_profile(
+    profile_id: UUID,
+    profile: CandidateProfileUpdate,
+    repository: Annotated[CandidateProfileRepository, Depends(get_repository)],
+) -> CandidateProfile:
+    try:
+        return repository.update(profile_id, profile)
     except LookupError as error:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(error)) from error

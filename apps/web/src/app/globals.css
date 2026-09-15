@@ -49,6 +49,7 @@ body {
 
 h1,
 h2,
+h3,
 p {
   margin-top: 0;
 }
@@ -76,6 +77,145 @@ h2 {
   background: var(--surface);
   padding: 24px;
   margin-bottom: 24px;
+}
+
+.editor-shell {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.section-heading {
+  max-width: 760px;
+  margin-bottom: 24px;
+}
+
+.section-heading p:not(.eyebrow) {
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.profile-form {
+  display: grid;
+  gap: 18px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+label {
+  display: grid;
+  gap: 8px;
+  color: var(--foreground);
+  font-weight: 650;
+}
+
+label span,
+legend {
+  font-size: 0.9rem;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--foreground);
+  font: inherit;
+  font-weight: 450;
+  line-height: 1.35;
+  padding: 11px 12px;
+}
+
+textarea {
+  min-height: 112px;
+  resize: vertical;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--accent);
+  outline: 3px solid rgb(31 111 104 / 16%);
+}
+
+.inline-control {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.inline-control input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent);
+}
+
+.inline-control label {
+  display: block;
+  font-weight: 600;
+}
+
+.evidence-fieldset {
+  display: grid;
+  gap: 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin: 0;
+  padding: 18px;
+}
+
+.evidence-fieldset legend {
+  padding: 0 8px;
+  font-weight: 750;
+}
+
+.form-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+button {
+  min-height: 44px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 750;
+  padding: 0 18px;
+}
+
+button:hover:not(:disabled) {
+  background: var(--accent-strong);
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.form-status {
+  color: var(--muted);
+  font-weight: 650;
+}
+
+.form-status.saved {
+  color: var(--accent-strong);
+}
+
+.form-status.error {
+  color: #a33a2a;
 }
 
 .workflow-list {
@@ -132,7 +272,13 @@ h2 {
   }
 
   .workflow-list,
-  .status-grid {
+  .status-grid,
+  .form-grid {
     grid-template-columns: 1fr;
+  }
+
+  .editor-shell,
+  .panel {
+    padding: 18px;
   }
 }

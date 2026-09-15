@@ -51,6 +51,10 @@ class CandidateProfileCreate(BaseModel):
     evidence: list[CandidateEvidenceBase] = Field(default_factory=list)
 
 
+class CandidateProfileUpdate(CandidateProfileCreate):
+    pass
+
+
 class CandidateProfile(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 

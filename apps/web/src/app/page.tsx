@@ -1,4 +1,5 @@
 import React from "react";
+import CandidateProfileEditor from "../components/CandidateProfileEditor";
 
 const workflowSteps = [
   "Structured candidate profile",
@@ -11,13 +12,15 @@ export default function Home() {
   return (
     <main className="dashboard">
       <section className="intro" aria-labelledby="page-title">
-        <p className="eyebrow">Milestone 1 scaffold</p>
+        <p className="eyebrow">Manual matching workspace</p>
         <h1 id="page-title">AI Job Search Copilot</h1>
         <p className="summary">
           A personal workspace for evaluating job descriptions against structured engineering
           experience before any portal automation is introduced.
         </p>
       </section>
+
+      <CandidateProfileEditor />
 
       <section className="panel" aria-labelledby="workflow-title">
         <h2 id="workflow-title">First vertical slice</h2>

@@ -10,6 +10,7 @@ Milestone 1 scaffolds the local development foundation only:
 - PostgreSQL via Docker Compose
 - Basic linting, formatting, type checking, and test configuration
 - Candidate profile and manual job-description persistence
+- Candidate profile editor in the web app
 
 This project intentionally does not include job matching, authentication, OpenAI integration, or company-portal connectors yet.
 
@@ -87,6 +88,8 @@ npm run dev:web
 
 Open http://localhost:3000.
 
+The frontend loads and saves the latest candidate profile through the backend API. Make sure the backend is running before using the profile editor.
+
 ## Checks
 
 Frontend:
@@ -115,6 +118,17 @@ cd apps/api
 source .venv/bin/activate
 alembic -c alembic.ini upgrade head
 ```
+
+## Current API Surface
+
+- `GET /health`
+- `POST /candidate-profile`
+- `GET /candidate-profile`
+- `GET /candidate-profile/{profile_id}`
+- `PUT /candidate-profile/{profile_id}`
+- `POST /jobs`
+- `GET /jobs`
+- `GET /jobs/{job_id}`
 
 ## Current Assumptions
 

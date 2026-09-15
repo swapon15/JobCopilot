@@ -4,7 +4,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
 from app.db.models import CandidateEvidenceRecord, CandidateProfileRecord
-from app.domain import CandidateProfile, CandidateProfileCreate
+from app.domain import CandidateProfile, CandidateProfileCreate, CandidateProfileUpdate
 
 
 class CandidateProfileRepository:
@@ -58,3 +58,33 @@ class CandidateProfileRepository:
         if record is None:
             return None
         return CandidateProfile.model_validate(record)
+
+    def update(self, profile_id: UUID, profile: CandidateProfileUpdate) -> CandidateProfile:
+        statement = (
+            select(CandidateProfileRecord)
+            .options(selectinload(CandidateProfileRecord.evidence))
+            .where(CandidateProfileRecord.id == str(profile_id))
+        )
+        record = self.session.scalar(statement)
+        if record is None:
+            raise LookupError(f"Candidate profile {profile_id} was not found")
+
+        record.headline = profile.headline
+        record.summary = profile.summary
+        record.target_roles = profile.target_roles
+        record.preferred_locations = profile.preferred_locations
+        record.work_preferences = profile.work_preferences
+        record.sponsorship_required = profile.sponsorship_required
+        record.evidence = [
+            CandidateEvidenceRecord(
+                project_or_position=item.project_or_position,
+                description=item.description,
+                skills=item.skills,
+                responsibilities=item.responsibilities,
+                measurable_outcomes=item.measurable_outcomes,
+                experience_type=item.experience_type.value,
+            )
+            for item in profile.evidence
+        ]
+        self.session.commit()
+        return self.get(profile_id)
