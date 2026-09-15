@@ -47,6 +47,25 @@ const jobResponse = {
   updated_at: "2026-09-15T00:00:00Z"
 };
 
+const profileDraftResponse = {
+  headline: "Principal Software/Data Engineer",
+  summary: "Builds platform and data systems.",
+  target_roles: ["Staff Software Engineer"],
+  preferred_locations: ["Remote"],
+  work_preferences: ["Remote"],
+  sponsorship_required: false,
+  evidence: [
+    {
+      project_or_position: "Licensing-data ingestion infrastructure",
+      description: "Built automated ingestion workflows.",
+      skills: ["Python", "SQL"],
+      responsibilities: ["Pipeline design"],
+      measurable_outcomes: ["Reduced processing time"],
+      experience_type: "direct"
+    }
+  ]
+};
+
 const matchResponse = {
   id: "match-1",
   candidate_profile_id: "profile-1",
@@ -100,6 +119,9 @@ function mockApi(options: { latestProfile?: unknown; jobs?: unknown[] } = {}) {
     if (url.endsWith("/candidate-profile") && method === "POST") {
       return jsonResponse({ ...profileResponse, headline: "Principal Software/Data Engineer" });
     }
+    if (url.endsWith("/candidate-profile/draft") && method === "POST") {
+      return jsonResponse(profileDraftResponse);
+    }
     if (url.endsWith("/candidate-profile/profile-1") && method === "PUT") {
       return jsonResponse({ ...profileResponse, headline: "Principal Software/Data Engineer" });
     }
@@ -144,18 +166,16 @@ describe("Home", () => {
 
     await screen.findByText("No saved profile yet.");
 
-    fireEvent.change(screen.getByLabelText("Headline"), {
-      target: { value: "Principal Software/Data Engineer" }
+    fireEvent.change(screen.getByLabelText("Paste resume, LinkedIn summary, or rough notes"), {
+      target: {
+        value: "Principal Software/Data Engineer\nBuilt automated ingestion workflows."
+      }
     });
-    fireEvent.change(screen.getByLabelText("Professional summary"), {
-      target: { value: "Builds platform and data systems." }
-    });
-    fireEvent.change(screen.getByLabelText("Project or position"), {
-      target: { value: "Licensing-data ingestion infrastructure" }
-    });
-    fireEvent.change(screen.getByLabelText("Evidence description"), {
-      target: { value: "Built automated ingestion workflows." }
-    });
+    fireEvent.click(screen.getByRole("button", { name: "Draft Profile" }));
+
+    await screen.findByText("Draft ready. Review the fields, then save the profile.");
+    expect(screen.getByDisplayValue("Principal Software/Data Engineer")).toBeInTheDocument();
+    expect(screen.getByDisplayValue("Licensing-data ingestion infrastructure")).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "Create Profile" }));
 

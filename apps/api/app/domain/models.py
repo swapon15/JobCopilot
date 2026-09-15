@@ -61,6 +61,10 @@ class CandidateProfileUpdate(CandidateProfileCreate):
     pass
 
 
+class CandidateProfileDraftRequest(BaseModel):
+    raw_text: str = Field(min_length=1)
+
+
 class CandidateProfile(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 

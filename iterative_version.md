@@ -534,6 +534,47 @@ Open `http://localhost:3000`, save a candidate profile, save a pasted job, gener
 - Decision persistence records the user's manual choice; it does not submit applications or contact employers.
 - The fuller OpenAI matcher remains Milestone 1.7.
 
+## Milestone 1.6.5 Summary - Low-Friction Profile Intake
+
+Milestone 1.6.5 reduces profile typing before the OpenAI milestone. Instead of starting with many blank fields, the user can paste a resume section, LinkedIn summary, or rough notes and generate a structured profile draft for review.
+
+### What Changed
+
+- Added `POST /candidate-profile/draft`.
+- Added deterministic profile drafting from raw pasted text.
+- Extracted a draft headline, summary, target roles, preferred locations, work preferences, sponsorship signal, skills, responsibilities, outcomes, and one evidence item.
+- Added a paste panel above the structured profile form.
+- Added `Draft Profile`, which fills the existing editable fields without saving immediately.
+- Kept the user in control: the draft must be reviewed and saved through the normal profile save action.
+- Added backend coverage for profile drafting.
+- Updated frontend unit and e2e coverage so profile creation can start from pasted text.
+
+### How to Run Milestone 1.6.5
+
+Start the backend and frontend the same way as Milestone 1.6:
+
+```sh
+docker compose up -d postgres
+cd apps/api
+source .venv/bin/activate
+alembic -c alembic.ini upgrade head
+uvicorn app.main:app --reload --port 8000
+```
+
+In a second terminal:
+
+```sh
+npm run dev:web
+```
+
+Open `http://localhost:3000`, paste profile text into the candidate profile draft box, click `Draft Profile`, review the generated fields, then save the profile.
+
+### Notes
+
+- This milestone intentionally avoids OpenAI calls and cost.
+- The draft parser is intentionally simple; it creates a usable workflow before LLM extraction is added.
+- Milestone 1.7 can replace or supplement the deterministic draft service with structured OpenAI extraction behind a safe feature flag.
+
 ## Next Milestones
 
 ## Overall System Diagram

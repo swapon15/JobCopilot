@@ -33,10 +33,10 @@ export type CandidateProfile = Omit<CandidateProfileInput, "evidence"> & {
 
 const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
 
-async function requestCandidateProfile(
+async function requestCandidateProfile<T = CandidateProfile | null>(
   path: string,
   init?: RequestInit
-): Promise<CandidateProfile | null> {
+): Promise<T> {
   const response = await fetch(`${apiBaseUrl}${path}`, {
     ...init,
     headers: {
@@ -49,7 +49,7 @@ async function requestCandidateProfile(
     throw new Error(`Candidate profile request failed with ${response.status}`);
   }
 
-  return response.json() as Promise<CandidateProfile | null>;
+  return response.json() as Promise<T>;
 }
 
 export function getLatestCandidateProfile(): Promise<CandidateProfile | null> {
@@ -59,7 +59,7 @@ export function getLatestCandidateProfile(): Promise<CandidateProfile | null> {
 export function createCandidateProfile(
   profile: CandidateProfileInput
 ): Promise<CandidateProfile | null> {
-  return requestCandidateProfile("/candidate-profile", {
+  return requestCandidateProfile<CandidateProfile | null>("/candidate-profile", {
     method: "POST",
     body: JSON.stringify(profile)
   });
@@ -69,9 +69,16 @@ export function updateCandidateProfile(
   profileId: string,
   profile: CandidateProfileInput
 ): Promise<CandidateProfile | null> {
-  return requestCandidateProfile(`/candidate-profile/${profileId}`, {
+  return requestCandidateProfile<CandidateProfile | null>(`/candidate-profile/${profileId}`, {
     method: "PUT",
     body: JSON.stringify(profile)
+  });
+}
+
+export function draftCandidateProfile(rawText: string): Promise<CandidateProfileInput | null> {
+  return requestCandidateProfile<CandidateProfileInput | null>("/candidate-profile/draft", {
+    method: "POST",
+    body: JSON.stringify({ raw_text: rawText })
   });
 }
 

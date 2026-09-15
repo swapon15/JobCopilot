@@ -15,6 +15,7 @@ Milestone 1 scaffolds the local development foundation only:
 - Fake local match preview behind a matcher interface
 - Backend-owned Apply/Consider/Skip recommendation policy
 - Manual match dashboard with persisted job decisions
+- Low-friction profile drafting from pasted resume or rough notes
 
 This project intentionally does not include authentication, OpenAI integration, or company-portal connectors yet.
 
@@ -128,6 +129,7 @@ alembic -c alembic.ini upgrade head
 - `GET /health`
 - `POST /candidate-profile`
 - `GET /candidate-profile`
+- `POST /candidate-profile/draft`
 - `GET /candidate-profile/{profile_id}`
 - `PUT /candidate-profile/{profile_id}`
 - `POST /jobs`
@@ -147,6 +149,8 @@ Recommendations are computed by backend policy code after matcher analysis:
 - `SKIP`: overall score below 65, or any material mandatory gap.
 
 The manual match dashboard displays the recommendation, supporting evidence, missing requirements, interview risks, work-preference conflicts, and decision actions to mark a job as applied, saved, or skipped.
+
+Candidate profile drafting accepts pasted resume text, LinkedIn-style summaries, or rough notes and returns a structured profile draft for review before saving. This currently uses deterministic extraction, not OpenAI.
 
 ## Current Assumptions
 

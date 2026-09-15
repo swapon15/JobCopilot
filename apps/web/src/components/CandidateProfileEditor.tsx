@@ -7,6 +7,7 @@ import {
   ExperienceType,
   commaTextToList,
   createCandidateProfile,
+  draftCandidateProfile,
   getLatestCandidateProfile,
   listToCommaText,
   updateCandidateProfile
@@ -43,6 +44,10 @@ const emptyForm: FormState = {
 };
 
 function profileToForm(profile: CandidateProfile): FormState {
+  return profileInputToForm(profile);
+}
+
+function profileInputToForm(profile: CandidateProfileInput): FormState {
   const firstEvidence = profile.evidence[0];
 
   return {
@@ -87,6 +92,7 @@ function formToProfileInput(form: FormState): CandidateProfileInput {
 
 export default function CandidateProfileEditor() {
   const [form, setForm] = useState<FormState>(emptyForm);
+  const [rawProfileText, setRawProfileText] = useState("");
   const [profileId, setProfileId] = useState<string | null>(null);
   const [status, setStatus] = useState<"idle" | "loading" | "saving" | "saved" | "error">(
     "loading"
@@ -133,6 +139,11 @@ export default function CandidateProfileEditor() {
     [form, status]
   );
 
+  const canDraft = useMemo(
+    () => rawProfileText.trim().length > 0 && status !== "saving",
+    [rawProfileText, status]
+  );
+
   function updateForm<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((current) => ({ ...current, [key]: value }));
     if (status === "saved" || status === "error") {
@@ -164,6 +175,23 @@ export default function CandidateProfileEditor() {
     }
   }
 
+  async function handleDraftProfile() {
+    setStatus("saving");
+    setMessage("Drafting profile from pasted text...");
+
+    try {
+      const draft = await draftCandidateProfile(rawProfileText);
+      if (draft) {
+        setForm(profileInputToForm(draft));
+      }
+      setStatus("idle");
+      setMessage("Draft ready. Review the fields, then save the profile.");
+    } catch {
+      setStatus("error");
+      setMessage("Could not draft the profile. Check the backend and try again.");
+    }
+  }
+
   return (
     <section className="editor-shell" aria-labelledby="profile-editor-title">
       <div className="section-heading">
@@ -173,6 +201,23 @@ export default function CandidateProfileEditor() {
           Capture the structured evidence the matcher will use later. Keep direct production
           experience separate from transferable or knowledge-only experience.
         </p>
+      </div>
+
+      <div className="profile-draft-panel">
+        <label>
+          <span>Paste resume, LinkedIn summary, or rough notes</span>
+          <textarea
+            name="rawProfileText"
+            value={rawProfileText}
+            onChange={(event) => setRawProfileText(event.target.value)}
+            placeholder="Paste a resume section or write a few notes about your experience, target roles, skills, locations, and work preferences."
+          />
+        </label>
+        <div className="form-actions">
+          <button type="button" disabled={!canDraft} onClick={handleDraftProfile}>
+            Draft Profile
+          </button>
+        </div>
       </div>
 
       <form className="profile-form" onSubmit={handleSubmit}>

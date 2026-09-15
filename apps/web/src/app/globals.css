@@ -102,6 +102,16 @@ h2 {
   gap: 18px;
 }
 
+.profile-draft-panel {
+  display: grid;
+  gap: 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fbfcfd;
+  margin-bottom: 22px;
+  padding: 18px;
+}
+
 .form-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

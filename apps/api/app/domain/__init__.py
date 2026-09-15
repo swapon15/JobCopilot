@@ -1,7 +1,9 @@
 from app.domain.models import (
     CandidateEvidence,
+    CandidateEvidenceBase,
     CandidateProfile,
     CandidateProfileCreate,
+    CandidateProfileDraftRequest,
     CandidateProfileUpdate,
     ExperienceType,
     JobDecision,
@@ -19,8 +21,10 @@ from app.domain.models import (
 
 __all__ = [
     "CandidateEvidence",
+    "CandidateEvidenceBase",
     "CandidateProfile",
     "CandidateProfileCreate",
+    "CandidateProfileDraftRequest",
     "CandidateProfileUpdate",
     "ExperienceType",
     "JobDescription",

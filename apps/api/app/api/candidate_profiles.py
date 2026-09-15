@@ -5,8 +5,14 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.db import get_db_session
-from app.domain import CandidateProfile, CandidateProfileCreate, CandidateProfileUpdate
+from app.domain import (
+    CandidateProfile,
+    CandidateProfileCreate,
+    CandidateProfileDraftRequest,
+    CandidateProfileUpdate,
+)
 from app.repositories import CandidateProfileRepository
+from app.services import draft_candidate_profile
 
 router = APIRouter(prefix="/candidate-profile", tags=["candidate profile"])
 
@@ -30,6 +36,13 @@ def get_latest_candidate_profile(
     repository: Annotated[CandidateProfileRepository, Depends(get_repository)],
 ) -> CandidateProfile | None:
     return repository.get_latest()
+
+
+@router.post("/draft", response_model=CandidateProfileCreate)
+def draft_candidate_profile_from_text(
+    request: CandidateProfileDraftRequest,
+) -> CandidateProfileCreate:
+    return draft_candidate_profile(request.raw_text)
 
 
 @router.get("/{profile_id}", response_model=CandidateProfile)

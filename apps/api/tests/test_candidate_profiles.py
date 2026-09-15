@@ -41,6 +41,32 @@ def test_get_latest_candidate_profile_returns_none_when_empty(client: TestClient
     assert response.json() is None
 
 
+def test_draft_candidate_profile_from_raw_text(client: TestClient) -> None:
+    response = client.post(
+        "/candidate-profile/draft",
+        json={
+            "raw_text": "\n".join(
+                [
+                    "Senior Platform Engineer",
+                    "Built Python and TypeScript data platforms with PostgreSQL.",
+                    "Led migration work that reduced processing time by 40%.",
+                    "Prefers remote teams with strong work-life balance.",
+                    "Target role: Staff Software Engineer",
+                ]
+            )
+        },
+    )
+
+    assert response.status_code == 200
+    draft = response.json()
+    assert draft["headline"] == "Senior Platform Engineer"
+    assert "Python" in draft["evidence"][0]["skills"]
+    assert "TypeScript" in draft["evidence"][0]["skills"]
+    assert draft["preferred_locations"] == ["Remote"]
+    assert "Strong work-life balance" in draft["work_preferences"]
+    assert draft["evidence"][0]["experience_type"] == "direct"
+
+
 def test_update_candidate_profile_replaces_profile_and_evidence(client: TestClient) -> None:
     create_response = client.post(
         "/candidate-profile",
